@@ -25,6 +25,8 @@ var player;
 var cursors;
 var platforms;
 var stars;
+var scoreDisplay;
+var score = 0;
 
 function preload() {
     this.load.image("sky", "fallingStarsAssets/sky.png");
@@ -89,10 +91,14 @@ function create() {
         child.setBounce(Phaser.Math.FloatBetween(0.75, 0.95));
         child.x = Phaser.Math.FloatBetween(0.05, 0.95) * config.width;
     });
-    
+    scoreDisplay = this.add.text(20, 20, "SCORE: 0", {
+        fontSize: "24px",
+        fill: "#000"
+    });
     
     this.physics.add.collider(player, platforms);
     this.physics.add.collider(stars, platforms);
+    this.physics.add.overlap(player, stars, pickupStar, null, this);
 }
 
 function update() {
@@ -108,5 +114,19 @@ function update() {
     }
     if (cursors.up.isDown && player.body.touching.down) {
         player.setVelocityY(-300);
+    }
+}
+
+function pickupStar(player, star) {
+    star.disableBody(true, true);
+    
+    score += 10;
+    scoreDisplay.setText("SCORE: " + score);
+    
+    if (stars.countActive(true) === 0) {
+        stars.children.iterate(function(child) {
+            var newX = Phaser.Math.FloatBetween(0.05, 0.95) * config.width;
+            child.enableBody(true, newX, 0, true, true);
+        });
     }
 }
