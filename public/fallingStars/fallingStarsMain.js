@@ -26,7 +26,9 @@ var cursors;
 var platforms;
 var stars;
 var scoreDisplay;
+var lifeDisplay;
 var score = 0;
+var lives = 3;
 var bombs;
 
 function preload() {
@@ -91,9 +93,14 @@ function create() {
     });
     stars.children.iterate(function(child) {
         child.setBounce(Phaser.Math.FloatBetween(0.75, 0.95));
+        child.setCollideWorldBounds(true);
         child.x = Phaser.Math.FloatBetween(0.05, 0.95) * config.width;
     });
     scoreDisplay = this.add.text(20, 20, "SCORE: 0", {
+        fontSize: "24px",
+        fill: "#000"
+    });
+    lifeDisplay = this.add.text(config.width-130, 20, "LIVES: 3", {
         fontSize: "24px",
         fill: "#000"
     });
@@ -103,6 +110,9 @@ function create() {
     this.physics.add.collider(player, platforms);
     this.physics.add.collider(stars, platforms);
     this.physics.add.overlap(player, stars, pickupStar, null, this);
+    this.physics.add.collider(bombs, bombs);
+    this.physics.add.collider(stars, bombs);
+    this.physics.add.collider(player, bombs, hitBomb, null, this);
 }
 
 function update() {
@@ -146,5 +156,21 @@ function pickupStar(player, star) {
         bomb.setCollideWorldBounds(true);
         bomb.setVelocity(newBombXDir*Phaser.Math.Between(1, 200), 0);
         bomb.allowGravity = false;
+    }
+}
+
+function hitBomb(player, bomb) {
+    lives -= 1;
+    lifeDisplay.setText("LIVES: " + lives);
+    
+    if (lives <= 0) {
+        this.physics.pause();
+        player.setTint(0xff0000);
+        player.anims.play("turn");
+        
+        this.add.text(100, 200, "GAME OVER...\nRefresh the page\nto play again!", {
+            fontSize: "48px",
+            fill: "#000"
+        });
     }
 }
