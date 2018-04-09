@@ -27,11 +27,13 @@ var platforms;
 var stars;
 var scoreDisplay;
 var score = 0;
+var bombs;
 
 function preload() {
     this.load.image("sky", "fallingStarsAssets/sky.png");
     this.load.image("platform", "fallingStarsAssets/platform.png");
     this.load.image("star", "fallingStarsAssets/star.png");
+    this.load.image("bomb", "fallingStarsAssets/bomb.png");
     this.load.spritesheet("playerDude", "fallingStarsAssets/dude.png", {
         frameWidth: 32,
         frameHeight: 48
@@ -96,6 +98,8 @@ function create() {
         fill: "#000"
     });
     
+    bombs = this.physics.add.group();
+    
     this.physics.add.collider(player, platforms);
     this.physics.add.collider(stars, platforms);
     this.physics.add.overlap(player, stars, pickupStar, null, this);
@@ -128,5 +132,19 @@ function pickupStar(player, star) {
             var newX = Phaser.Math.FloatBetween(0.05, 0.95) * config.width;
             child.enableBody(true, newX, 0, true, true);
         });
+        
+        var randNum = Phaser.Math.FloatBetween(0, 1);
+        if (randNum < 0.5) {
+            var newBombX = 0;
+            var newBombXDir = 1;
+        } else {
+            newBombX = config.width;
+            newBombXDir = -1;
+        }
+        var bomb = bombs.create(newBombX, Phaser.Math.Between(0, config.height/3), "bomb");
+        bomb.setBounce(1);
+        bomb.setCollideWorldBounds(true);
+        bomb.setVelocity(newBombXDir*Phaser.Math.Between(1, 200), 0);
+        bomb.allowGravity = false;
     }
 }
