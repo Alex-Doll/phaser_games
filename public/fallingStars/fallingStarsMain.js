@@ -24,10 +24,12 @@ var game = new Phaser.Game(config);
 var player;
 var cursors;
 var platforms;
+var stars;
 
 function preload() {
     this.load.image("sky", "fallingStarsAssets/sky.png");
-    this.load.image("platform", "fallingStarsAssets/platform.png")
+    this.load.image("platform", "fallingStarsAssets/platform.png");
+    this.load.image("star", "fallingStarsAssets/star.png");
     this.load.spritesheet("playerDude", "fallingStarsAssets/dude.png", {
         frameWidth: 32,
         frameHeight: 48
@@ -75,8 +77,22 @@ function create() {
     platforms = this.physics.add.staticGroup();
     platforms.create(400, 568, "platform").setScale(2).refreshBody();
     
+    stars = this.physics.add.group({
+        key: "star",
+        repeat: 5,
+        setXY: {
+            x: Phaser.Math.FloatBetween(0.1, 0.9) * config.width,
+            y: 0
+        }
+    });
+    stars.children.iterate(function(child) {
+        child.setBounce(Phaser.Math.FloatBetween(0.75, 0.95));
+        child.x = Phaser.Math.FloatBetween(0.05, 0.95) * config.width;
+    });
+    
     
     this.physics.add.collider(player, platforms);
+    this.physics.add.collider(stars, platforms);
 }
 
 function update() {
